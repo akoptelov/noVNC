@@ -199,7 +199,17 @@
             WebUtil.createCookie('token', token, 1)
         }
 
-        (function() {
+        // Generate unique ID
+        var sessionID = WebUtil.readCookie('sessionID', null);
+        if (!sessionID) {
+            sessionID = Math.random().toString(36).substr(2, 5) + Date.now().toString(36);
+            //sessionID = WebUtil.getConfigVar('sessionID', 'test');
+            var date = new Date();
+            date.setTime(date.getTime() + 3 * 60 * 60 * 1000); // 3 hours
+            WebUtil.createCookie('sessionID', sessionID, date);
+        }
+
+        var start = function() {
 
             status("Connecting", "normal");
 
@@ -234,7 +244,13 @@
             rfb.addEventListener("desktopname", updateDesktopName);
             rfb.scaleViewport = WebUtil.getConfigVar('scale', false);
             rfb.resizeSession = WebUtil.getConfigVar('resize', false);
-        })();
+        };
+
+        WebUtil.fetchJSON("/controller/setup?sessionID=" + sessionID, function () {
+            WebUtil.fetchJSON("/controller/start?sessionID=" + sessionID, function () {
+                start();
+            }, function () {})
+        }, function () {});
     </script>
 </head>
 
