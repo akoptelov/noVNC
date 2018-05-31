@@ -69,7 +69,10 @@ export function getConfigVar (name, defVal) {
 export function createCookie (name, value, days) {
     "use strict";
     let date, expires;
-    if (days) {
+    if (days instanceof Date) {
+        date = days;
+        expires = "; expires=" + date.toGMTString();
+    } else if (days) {
         date = new Date();
         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
         expires = "; expires=" + date.toGMTString();
